@@ -10,6 +10,7 @@ Player::Player(Side side) {
     testingMinimax = false;
 
     this->side = side;
+	started = false;
 }
 
 /*
@@ -34,15 +35,31 @@ Player::~Player() {
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft)
 {
-    assert(game.checkMove(opponentsMove, 1 - side));
+    if(started)
+	{
+		assert(game.checkMove(opponentsMove, (Side) (1 - side)));
+	}
+	else
+	{
+		started = true;
+	}
 	
-	game.doMove(opponentsMove, 1 - side);
+	game.doMove(opponentsMove, (Side) (1 - side));
 	
 	// not-so-intelligent AI: returns the first move found
 	for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            Move move(i, j);
-            if (game.checkMove(&move, side)) return move;
+            Move* move = new Move(i, j);
+            if (game.checkMove(move, side))
+			{
+				game.doMove(move, side);
+				return move;
+			}
+			else
+			{
+				delete move;
+			}
+			
         }
     }
 	
