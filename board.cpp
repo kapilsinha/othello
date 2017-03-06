@@ -54,6 +54,23 @@ bool Board::isDone() {
     return !(hasMoves(BLACK) || hasMoves(WHITE));
 }
 
+/**
+ * Returns number of moves // Added this
+ */
+int Board::numMoves(Side side) { // change to numGoodMoves based on some heuristic?
+    // perhaps not required later due to the added function getMoves()
+    int num_moves = 0;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            Move move(i, j);
+            if (checkMove(&move, side)) {
+                num_moves++;
+            }
+        }
+    }
+    return num_moves;
+}
+
 /*
  * Returns true if there are legal moves for the given side.
  */
@@ -101,6 +118,30 @@ bool Board::checkMove(Move *m, Side side) {
     return false;
 }
 
+/*
+ * Returns list of possible moves in tuples containing the coordinates
+ */
+vector< tuple<int, int> > Board::getMoves(Side side) {
+    vector< tuple<int, int> > moves;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            tuple<int, int> move_coord (i, j);
+            Move move(i, j);
+            if (checkMove(&move, side)) {
+                moves.push_back(move_coord);
+            }
+        }
+    }
+    return moves;
+}
+
+/*
+ * Undos last move (to be used for simulated boards)
+ */
+void Board::undoMove(Move *m, Side side) {
+    // NOT IMPLEMENTED
+    return;
+}
 /*
  * Modifies the board to reflect the specified move.
  */

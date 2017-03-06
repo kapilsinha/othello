@@ -3,6 +3,9 @@
 
 #include <bitset>
 #include "common.hpp"
+
+#include <tuple>
+#include <vector>
 using namespace std;
 
 class Board {
@@ -23,7 +26,10 @@ public:
 
     bool isDone();
     bool hasMoves(Side side);
+    int numMoves(Side side);
     bool checkMove(Move *m, Side side);
+    vector< tuple<int, int> > getMoves(Side side);
+    void undoMove(Move *m, Side side); // NOT IMPLEMENTED
     void doMove(Move *m, Side side);
     int count(Side side);
     int countBlack();
