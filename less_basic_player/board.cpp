@@ -151,7 +151,14 @@ void Board::doMove(Move *m, Side side) {
 
     // Ignore if move is invalid.
     if (!checkMove(m, side)) return;
-
+    // move_list.push_back(tuple<Move *, Side>(m, side)); // added this
+    /* The above line causes an error: BasicPlayer: malloc.c:2392: sysmalloc:
+     * Assertion `(old_top == initial_top (av) && old_size == 0) ||
+     * ((unsigned long) (old_size) >= MINSIZE && prev_inuse (old_top)
+     * && ((unsigned long) old_end & (pagesize - 1)) == 0)' failed.
+     * bash: line 1:  8366 Aborted (core dumped) ./BasicPlayer Black
+     * java.io.IOException: Stream closed
+     */
     int X = m->getX();
     int Y = m->getY();
     Side other = (side == BLACK) ? WHITE : BLACK;

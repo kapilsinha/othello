@@ -19,8 +19,8 @@ public:
     ~Player();
 
     // Move *checkPowerSpots();
-    Move *Player::checkPowerSpots(vector< tuple<int, int> > move_coords);
-    Move *Player::maximizeMoves(Board * simulated_game, vector< tuple<int, int> > move_coords);
+    Move *checkPowerSpots(vector< tuple<int, int> > move_coords);
+    Move *maximizeMoves(Board * simulated_game, vector< tuple<int, int> > move_coords, Side side);
     Move *doMove(Move *opponentsMove, int msLeft);
 
     // Flag to tell if the player is running within the test_minimax context

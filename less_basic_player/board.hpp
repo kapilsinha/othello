@@ -18,6 +18,10 @@ private:
     bool get(Side side, int x, int y);
     void set(Side side, int x, int y);
     bool onBoard(int x, int y);
+    // vector< tuple<Move *, Side> > move_list;
+    // The above causes an error if the corresponding statement in the cpp
+    // file is not commented out. After the error occurs, comment out both
+    // this and the line in the cpp file
 
 public:
     Board();

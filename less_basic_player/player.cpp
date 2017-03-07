@@ -45,13 +45,14 @@ Move *Player::checkPowerSpots(vector< tuple<int, int> > move_coords)
     powerspots[14] = tuple<int, int> (5, 2);
     powerspots[15] = tuple<int, int> (5, 5);
     for (int i = 0; i < 16; i++) {
-        for (int j = 0; j < move_coords.size(); j++) {
-            if (get<0>(move_coords[i]) == get<0>(powerspots[i])
-             && get<1>(move_coords[i]) == get<1>(powerspots[i])) {
-                return new Move(get<0>(move_coords[i]), get<1>(move_coords[i]));
+        for (int j = 0; j < (int) move_coords.size(); j++) {
+            if (get<0>(move_coords[j]) == get<0>(powerspots[i])
+             && get<1>(move_coords[j]) == get<1>(powerspots[i])) {
+                return new Move(get<0>(move_coords[j]), get<1>(move_coords[j]));
             }
         }
     }
+    return nullptr;
 }
 /* The following is the older version but may actually be better/faster
 Move *Player::checkPowerSpots()
@@ -95,13 +96,13 @@ Move *Player::checkPowerSpots()
 Move *Player::maximizeMoves(Board * simulated_game,
                             vector< tuple<int, int> > move_coords,
                             Side side)
-{ 
+{
     int max_num_moves = 0;
     int num_moves;
     Move * best_move = nullptr;
-    for (int i = 0; i < move_coords.size(); i++) {
+    for (int i = 0; i < (int) move_coords.size(); i++) {
         Move * move = new Move(get<0>(move_coords[i]), get<1>(move_coords[i]));
-        simulated_game.doMove(move, side);
+        simulated_game->doMove(move, side);
         num_moves = game.numMoves(side);
         if (num_moves > max_num_moves) {
             max_num_moves = num_moves;
@@ -111,7 +112,7 @@ Move *Player::maximizeMoves(Board * simulated_game,
         // I AM PRETENDING THAT THIS METHOD EXISTS FOR NOW BUT IT DOES NOT!
         // IT WILL REQUIRE US TO ADD A VARIABLE/ARRAY last_move(s) TO BOARD
         // Add this function to doMove() when the above works with undoMove()
-        simulated_game.undoMove();
+        simulated_game->undoMove(move, side);
         delete move;
     }
     return best_move;
@@ -140,16 +141,17 @@ Move *Player::doMove(Move *opponentsMove, int msLeft)
     }
 
     game.doMove(opponentsMove, (Side) (1 - side));
-    Board * simulated_game = game.copy();
+    // Board * simulated_game = game.copy(); // use in maximizeMoves()
 
     // not-so-intelligent AI: returns the first move found
-    if (move != nullptr) {
-        return move;
-    }
-    Move* [] moves;
     vector< tuple<int, int> > move_coords = game.getMoves(side);
     Move *move = checkPowerSpots(move_coords);
-    for (int i = 0; i < move_coords.size(); i++) {
+    if (move != nullptr) {
+        game.doMove(move, side);
+        return move;
+    }
+    delete move;
+    for (int i = 0; i < (int) move_coords.size(); i++) {
         Move* move = new Move(get<0>(move_coords[i]), get<1>(move_coords[i]));
         game.doMove(move, side);
         return move;
