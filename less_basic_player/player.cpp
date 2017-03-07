@@ -31,11 +31,19 @@ Player::~Player() {
 }
 
 /*
- * Very simple heuristic that counts # of our tokens - # of opponent tokens.
+ * Heuristic that accounts for number of moves available and tokens, unless testing minimax. 
  */
 int Player::NaiveHeuristic(Board simulator)
 {
-	return simulator.count(side) - simulator.count((Side) (1 - side));
+	if(testingMinimax)
+	{
+		return simulator.count(side) - simulator.count((Side) (1 - side));
+	}
+	else
+	{
+		return 8*simulator.getMoves(side).size() - 8*simulator.getMoves((Side) (1 - side)).size()
+			+ simulator.count(side) - simulator.count((Side) (1 - side));
+	}
 }
 
 /*
