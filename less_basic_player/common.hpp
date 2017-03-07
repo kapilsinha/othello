@@ -22,4 +22,9 @@ public:
     void setY(int y) { this->y = y; }
 };
 
+struct SideMove {
+	Move move;
+	Side side;
+};
+
 #endif

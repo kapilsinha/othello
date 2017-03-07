@@ -4,8 +4,8 @@
 #include <bitset>
 #include "common.hpp"
 
-#include <tuple>
 #include <vector>
+#include <tuple>
 using namespace std;
 
 class Board {
@@ -18,7 +18,7 @@ private:
     bool get(Side side, int x, int y);
     void set(Side side, int x, int y);
     bool onBoard(int x, int y);
-    // vector< tuple<Move *, Side> > move_list;
+    vector<SideMove> move_list; // SideMove struct defined in common.hpp
     // The above causes an error if the corresponding statement in the cpp
     // file is not commented out. After the error occurs, comment out both
     // this and the line in the cpp file
