@@ -16,11 +16,14 @@ private:
 
 public:
     Player(Side side);
+	Player(Side side, char data[]);
     ~Player();
 
     Move *checkPowerSpots(vector< tuple<int, int> > move_coords);
     Move *maximizeMoves(Board * simulated_game, vector< tuple<int, int> > move_coords, Side side);
     Move *doMove(Move *opponentsMove, int msLeft);
+	int NaiveHeuristic(Board simulator);
+	Move * Minimax();
 
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;

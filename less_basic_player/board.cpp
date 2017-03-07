@@ -139,8 +139,8 @@ vector< tuple<int, int> > Board::getMoves(Side side) {
  * Undos last move (to be used for simulated boards)
  */
 void Board::undoMove() {
-    SideMove s = move_list.back(); 
-    move_list.pop_back(); // remove move from list
+    SideMove s = move_list.back(); // remove move from list
+	move_list.pop_back();
     int x = s.move.getX();
     int y = s.move.getY();
     taken.set(x + 8*y, 0); // set space to not taken
