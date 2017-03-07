@@ -18,7 +18,6 @@ public:
     Player(Side side);
     ~Player();
 
-    // Move *checkPowerSpots();
     Move *checkPowerSpots(vector< tuple<int, int> > move_coords);
     Move *maximizeMoves(Board * simulated_game, vector< tuple<int, int> > move_coords, Side side);
     Move *doMove(Move *opponentsMove, int msLeft);

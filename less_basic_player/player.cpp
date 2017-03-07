@@ -108,11 +108,7 @@ Move *Player::maximizeMoves(Board * simulated_game,
             max_num_moves = num_moves;
             best_move = move;
         }
-        // WE NEED TO ADD AN UNDO MOVE METHOD TO BOARD
-        // I AM PRETENDING THAT THIS METHOD EXISTS FOR NOW BUT IT DOES NOT!
-        // IT WILL REQUIRE US TO ADD A VARIABLE/ARRAY last_move(s) TO BOARD
-        // Add this function to doMove() when the above works with undoMove()
-        simulated_game->undoMove(move, side);
+        simulated_game->undoMove();
         delete move;
     }
     return best_move;
@@ -141,16 +137,25 @@ Move *Player::doMove(Move *opponentsMove, int msLeft)
     }
 
     game.doMove(opponentsMove, (Side) (1 - side));
-    // Board * simulated_game = game.copy(); // use in maximizeMoves()
-
-    // not-so-intelligent AI: returns the first move found
     vector< tuple<int, int> > move_coords = game.getMoves(side);
+
     Move *move = checkPowerSpots(move_coords);
     if (move != nullptr) {
         game.doMove(move, side);
         return move;
     }
     delete move;
+
+    // The below block of code does not work
+    Board * simulated_game = game.copy(); // use in maximizeMoves()
+    move = maximizeMoves(simulated_game, move_coords, side);
+    if (move != nullptr) {
+        game.doMove(move, side);
+        return move;
+    }
+    delete move;
+    // The above block of code does not work
+
     for (int i = 0; i < (int) move_coords.size(); i++) {
         Move* move = new Move(get<0>(move_coords[i]), get<1>(move_coords[i]));
         game.doMove(move, side);

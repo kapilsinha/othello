@@ -138,9 +138,14 @@ vector< tuple<int, int> > Board::getMoves(Side side) {
 /*
  * Undos last move (to be used for simulated boards)
  */
-void Board::undoMove(Move *m, Side side) {
-    // NOT IMPLEMENTED
-    return;
+void Board::undoMove() {
+    SideMove s = move_list.back(); 
+    move_list.pop_back(); // remove move from list
+    int x = s.move.getX();
+    int y = s.move.getY();
+    taken.set(x + 8*y, 0); // set space to not taken
+    black.set(x + 8*y, 0); // set space to white
+    // the above should not be necessary but it is there as a precaution
 }
 /*
  * Modifies the board to reflect the specified move.
@@ -152,15 +157,8 @@ void Board::doMove(Move *m, Side side) {
     // Ignore if move is invalid.
     if (!checkMove(m, side)) return;
     
-	SideMove inputMove = {*m, side};
-	move_list.push_back(inputMove); // added this
-    /* The above line causes an error: BasicPlayer: malloc.c:2392: sysmalloc:
-     * Assertion `(old_top == initial_top (av) && old_size == 0) ||
-     * ((unsigned long) (old_size) >= MINSIZE && prev_inuse (old_top)
-     * && ((unsigned long) old_end & (pagesize - 1)) == 0)' failed.
-     * bash: line 1:  8366 Aborted (core dumped) ./BasicPlayer Black
-     * java.io.IOException: Stream closed
-     */
+    SideMove inputMove = {*m, side};
+    move_list.push_back(inputMove); // added this
     int X = m->getX();
     int Y = m->getY();
     Side other = (side == BLACK) ? WHITE : BLACK;
