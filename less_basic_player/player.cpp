@@ -35,15 +35,17 @@ Player::~Player() {
  */
 int Player::NaiveHeuristic(Board simulator)
 {
-	if(testingMinimax)
-	{
-		return simulator.count(side) - simulator.count((Side) (1 - side));
-	}
-	else
-	{
-		return 8*simulator.getMoves(side).size() - 8*simulator.getMoves((Side) (1 - side)).size()
-			+ simulator.count(side) - simulator.count((Side) (1 - side));
-	}
+    vector< tuple<int, int> > moves = simulator.getMoves(side);
+    vector< tuple<int, int> > opponent_moves = simulator.getMoves((Side) (1 - side));
+    if(testingMinimax) {
+        return simulator.count(side) - simulator.count((Side) (1 - side));
+    }
+    else {
+        return 8 * moves.size() - 8 * opponent_moves.size()
+            + 16 * simulator.countPowerSpots(side)
+            - 16 * simulator.countPowerSpots((Side) (1 - side))
+            + simulator.count(side) - simulator.count((Side) (1 - side));
+    }
 }
 
 /*

@@ -33,6 +33,7 @@ public:
     void undoMove();
     void doMove(Move *m, Side side);
     int count(Side side);
+    int countPowerSpots(Side side);
     int countBlack();
     int countWhite();
 
