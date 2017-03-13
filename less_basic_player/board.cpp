@@ -190,46 +190,6 @@ void Board::doMove(Move *m, Side side) {
 }
 
 /*
- * Current count of given side's power spots (corners and three away from them)
- */
-int Board::countPowerSpots(Side side)
-{
-    tuple<int, int> powerspots[16];
-    powerspots[0] = tuple<int, int> (0, 0);
-    powerspots[1] = tuple<int, int> (7, 7);
-    powerspots[2] = tuple<int, int> (0, 7);
-    powerspots[3] = tuple<int, int> (7, 0);
-    powerspots[4] = tuple<int, int> (0, 2);
-    powerspots[5] = tuple<int, int> (0, 5);
-    powerspots[6] = tuple<int, int> (2, 0);
-    powerspots[7] = tuple<int, int> (2, 5);
-    powerspots[8] = tuple<int, int> (5, 0);
-    powerspots[9] = tuple<int, int> (5, 7);
-    powerspots[10] = tuple<int, int> (7, 2);
-    powerspots[11] = tuple<int, int> (7, 5);
-    powerspots[12] = tuple<int, int> (2, 2);
-    powerspots[13] = tuple<int, int> (2, 5);
-    powerspots[14] = tuple<int, int> (5, 2);
-    powerspots[15] = tuple<int, int> (5, 5);
-    int taken_count = 0;
-    int black_count = 0;
-    for (tuple<int, int> powerspot: powerspots) {
-        int x = std::get<0>(powerspot); // I added std because it was giving me errors
-        int y = std::get<1>(powerspot);
-        if (taken[x + 8 * y]) {
-            taken_count++;
-            if (black[x + 8 * y]) {
-                black_count++;
-            }
-        }
-    }
-    if (side == BLACK) {
-        return black_count;
-    }
-    return taken_count - black_count; // white_count
-}
-
-/*
  * Current count of given side's stones.
  */
 int Board::count(Side side) {
