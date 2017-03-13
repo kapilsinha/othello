@@ -26,11 +26,24 @@ public:
     Board *copy();
 
     bool isDone();
+    int board_weight[8][8] = // gets adjusted as the game progresses
+    {
+        {4, -3, 2, 2, 2, 2, -3, 4},
+        {-3, -4, -1, -1, -1, -1, -4, -3},
+        {2, -1, 1, 0, 0, 1, -1, 2},
+        {2, -1, 0, 1, 1, 0, -1, 2},
+        {2, -1, 0, 1, 1, 0, -1, 2},
+        {2, -1, 1, 0, 0, 1, -1, 2},
+        {-3, -4, -1, -1, -1, -1, -4, -3},
+        {4, -3, 2, 2, 2, 2, -3, 4}
+    };
+    void adjustBoardWeights(Side side);
+    int getWeightScore(Side side);
     bool hasMoves(Side side);
     int numMoves(Side side);
     bool checkMove(Move *m, Side side);
     vector< tuple<int, int> > getMoves(Side side);
-    void undoMove();
+    // void undoMove();
     void doMove(Move *m, Side side);
     int count(Side side);
     int countBlack();

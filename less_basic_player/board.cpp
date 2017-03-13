@@ -55,6 +55,68 @@ bool Board::isDone() {
 }
 
 /**
+ * Adjusts board weights if a corner is taken
+ */
+void Board::adjustBoardWeights(Side side)
+{
+    if (move_list.size() == 0) {
+        return;
+    }
+    if (occupied(0, 0) && get(side, 0, 0)) {
+        board_weight[0][1] = 2; board_weight[1][0] = 2;
+        if (! occupied(0, 1)) { // gaps are bad
+            board_weight[0][2] = -3;
+        }
+        if (! occupied(1, 0)) { // gaps are bad
+            board_weight[2][0] = -3;
+        }
+    }
+    if (occupied(7, 0) && get(side, 7, 0)) {
+        board_weight[7][1] = 2; board_weight[6][0] = 2;
+        if (! occupied(7, 1)) { // gaps are bad
+            board_weight[7][2] = -3;
+        }
+        if (! occupied(6, 0)) { // gaps are bad
+            board_weight[5][0] = -3;
+        }
+    }
+    if (occupied(0, 7) && get(side, 0, 7)) {
+        board_weight[1][7] = 2; board_weight[0][6] = 2;
+        if (! occupied(1, 7)) { // gaps are bad
+            board_weight[2][7] = -3;
+        }
+        if (! occupied(0, 6)) { // gaps are bad
+            board_weight[0][5] = -3;
+        }
+    }
+    if (occupied(7, 7) && get(side, 7, 7)) {
+        board_weight[7][6] = 2; board_weight[6][7] = 2;
+        if (! occupied(7, 6)) { // gaps are bad
+            board_weight[7][5] = -3;
+        }
+        if (! occupied(6, 7)) { // gaps are bad
+            board_weight[5][7] = -3;
+        }
+    }
+}
+
+/**
+ * Returns sum of that side's weights based on what is occupied
+ */
+int Board::getWeightScore(Side side)
+{
+    int weight_total = 0;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (occupied(i, j) && get(side, i, j)) {
+                weight_total += board_weight[i][j];
+            }
+        }
+    }
+    return weight_total;
+}
+
+/**
  * Returns number of moves // Added this
  */
 int Board::numMoves(Side side) { // change to numGoodMoves based on some heuristic?
@@ -138,6 +200,7 @@ vector< tuple<int, int> > Board::getMoves(Side side) {
 /*
  * Undos last move (to be used for simulated boards)
  */
+/*
 void Board::undoMove() {
     SideMove s = move_list.back(); // remove move from list
 	move_list.pop_back();
@@ -147,6 +210,8 @@ void Board::undoMove() {
     black.set(x + 8*y, 0); // set space to white
     // the above should not be necessary but it is there as a precaution
 }
+*/
+
 /*
  * Modifies the board to reflect the specified move.
  */
