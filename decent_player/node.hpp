@@ -25,14 +25,14 @@ public:
 	double score;
 	int board_weight[8][8] = // gets adjusted as the game progresses
     {
-        {4, -3, 2, 2, 2, 2, -3, 4},
-        {-3, -4, -1, -1, -1, -1, -4, -3},
+        {10, -3, 2, 2, 2, 2, -3, 10},
+        {-3, -10, -1, -1, -1, -1, -10, -3},
         {2, -1, 1, 0, 0, 1, -1, 2},
         {2, -1, 0, 1, 1, 0, -1, 2},
         {2, -1, 0, 1, 1, 0, -1, 2},
         {2, -1, 1, 0, 0, 1, -1, 2},
-        {-3, -4, -1, -1, -1, -1, -4, -3},
-        {4, -3, 2, 2, 2, 2, -3, 4}
+        {-3, -10, -1, -1, -1, -1, -10, -3},
+        {10, -3, 2, 2, 2, 2, -3, 10}
     };
 
 	Node(Side playerSide = BLACK);
@@ -54,13 +54,16 @@ public:
 	string printMoves();
 	string printMoveHistory(); // in formatted form
 
+    int getGameMoveNumber(); // returns game move number
     void adjustBoardWeights();
 
-    int numMoves();
-    int getWeightScore();
+    int playerNumMoves();
+    int opponentNumMoves();
+    int getWeightScore(Side side);
+    int getFrontierSquaresScore(Side side);
 	
 	void UpdateScore(double d);
-	void CalculateScore(); // implement heuristic function here
+	void CalculateScore(int game_move); // implement heuristic function here
 	
 };
 

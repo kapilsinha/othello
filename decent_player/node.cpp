@@ -50,7 +50,7 @@ Node::Node(Node * parent, vector<Move> toFlip, Move move, Side side, bool played
 	isEnd = false;
 	searched = false;
 	
-	CalculateScore();
+	CalculateScore(getGameMoveNumber());
 }
 
 /*
@@ -146,7 +146,7 @@ void Node::UpdateScore(double d)
 /*
  * This is the heuristic function.
  */
-void Node::CalculateScore()
+void Node::CalculateScore(int game_move)
 {
 	int whiteCount = taken.count() - black.count();
 	int blackCount = black.count();
@@ -162,8 +162,14 @@ void Node::CalculateScore()
 	{
 		count_difference = whiteCount - blackCount;
 	}
-	heuristic = getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide))
-				+ playerNumMoves();
+	if (game_move < 52) {
+		heuristic = 1 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
+	              + 1 * (getFrontierSquaresScore(playerSide) - getFrontierSquaresScore((Side) (1 - playerSide)))
+			      + 0.25 * (playerNumMoves() - opponentNumMoves());
+	}
+	if (game_move >= 50) { // 10 total moves left - 5 each
+		heuristic = count_difference; //+ 0.5 * (playerNumMoves() - opponentNumMoves());
+	}
 	UpdateScore(heuristic);
 }
 
@@ -485,35 +491,22 @@ string Node::printMoves()
  * Returns number of moves for player
  */
 int Node::playerNumMoves() { // change to numGoodMoves based on some heuristic? Probably not
-// change to playerNumMoves and add opponentNumMoves
-    // perhaps not required later due to the added function getMoves()
-    if(!searched) Search();
-    int num_moves = 0;
-   	for(Node * child: children) {
-   		num_moves++;
-   	}
-    return num_moves;
+    // ghetto num_moves (looks at number of moves you could have taken for this step, but since
+    // we are searching a tree, the cumulative total will be accounted for so this should be ok)
+    return parent->children.size();
 }
 
 /**
  * Returns number of moves for opponent
  */
 int Node::opponentNumMoves() { // change to numGoodMoves based on some heuristic? Probably not
-// change to playerNumMoves and add opponentNumMoves
-    // perhaps not required later due to the added function getMoves()
-    if(!searched) Search();
-    int num_moves = 0;
-    int max_num_moves = 0;
-   	for(Node * child: children) {
-   		if(! child->searched) child->Search();
-   		for (Node * grandchild: child->children) {
-            num_moves++;
-    	}
-    	if (num_moves > max_num_moves) {
-    		max_num_moves = num_moves;
-    	}
-   	}
-    return max_num_moves;
+	/**
+	if (parent->parent == nullptr) {
+		return 0;
+	}
+	return parent->parent->children.size(); // interestingly, this gave an invalid move
+	*/
+	return children.size();
 }
 
 /**
@@ -538,6 +531,19 @@ string Node::printMoveHistory()
 }
 
 /**
+ * Gets game move number
+ */
+int Node::getGameMoveNumber()
+{
+	int game_move_number = 1;
+	Node * current_node = this;
+	while (current_node->parent != nullptr) {
+		game_move_number++;
+		current_node = current_node->parent;
+	}
+}
+
+/**
  * Adjusts board weights if a corner is taken - based on Board class
  */
 void Node::adjustBoardWeights()
@@ -548,37 +554,37 @@ void Node::adjustBoardWeights()
     if (occupied(0, 0) && get(side, 0, 0)) {
         board_weight[0][1] = 2; board_weight[1][0] = 2;
         if (! occupied(0, 1)) { // gaps are bad
-            board_weight[0][2] = -4;
+            board_weight[0][2] = -5;
         }
         if (! occupied(1, 0)) { // gaps are bad
-            board_weight[2][0] = -4;
+            board_weight[2][0] = -5;
         }
     }
     if (occupied(7, 0) && get(side, 7, 0)) {
         board_weight[7][1] = 2; board_weight[6][0] = 2;
         if (! occupied(7, 1)) { // gaps are bad
-            board_weight[7][2] = -4;
+            board_weight[7][2] = -5;
         }
         if (! occupied(6, 0)) { // gaps are bad
-            board_weight[5][0] = -4;
+            board_weight[5][0] = -5;
         }
     }
     if (occupied(0, 7) && get(side, 0, 7)) {
         board_weight[1][7] = 2; board_weight[0][6] = 2;
         if (! occupied(1, 7)) { // gaps are bad
-            board_weight[2][7] = -4;
+            board_weight[2][7] = -5;
         }
         if (! occupied(0, 6)) { // gaps are bad
-            board_weight[0][5] = -4;
+            board_weight[0][5] = -5;
         }
     }
     if (occupied(7, 7) && get(side, 7, 7)) {
         board_weight[7][6] = 2; board_weight[6][7] = 2;
         if (! occupied(7, 6)) { // gaps are bad
-            board_weight[7][5] = -4;
+            board_weight[7][5] = -5;
         }
         if (! occupied(6, 7)) { // gaps are bad
-            board_weight[5][7] = -4;
+            board_weight[5][7] = -5;
         }
     }
 }
@@ -598,13 +604,92 @@ int Node::getWeightScore(Side side)
     }
     return weight_total;
 }
+
 /**
+ * Returns the number of frontier squares (number of unoccupied squares next to the side's coins)
+ */
 int Node::getFrontierSquaresScore(Side side)
 {
-	int weight_total = 0;
+	int frontier_score = 0;
     for (int i = 0; i < 8; i++) {
         for (int j = 0; j < 8; j++) {
-            if (! occupied(i, j)) {
-            	if ( && get(side, i, j))
+            if (! occupied(i, j) && i > 0 && i < 7 && j > 0 && j < 7) { // inner square
+            	if (occupied(i + 1, j) && get(side, i + 1, j) ||
+            	  occupied(i - 1, j) && get(side, i - 1, j) ||
+            	  occupied(i, j + 1) && get(side, i, j + 1) ||
+            	  occupied(i, j - 1) && get(side, i, j - 1) ||
+            	  occupied(i + 1, j + 1) && get(side, i + 1, j + 1) ||
+            	  occupied(i + 1, j - 1) && get(side, i + 1, j - 1) ||
+            	  occupied(i - 1, j + 1) && get(side, i - 1, j + 1) ||
+            	  occupied(i - 1, j - 1) && get(side, i - 1, j - 1)) {
+            		frontier_score++;
+            	}
+            }
+            else if (! occupied(i, j) && i == 0 && j > 0 && j < 7) { // left column without corners
+            	if (occupied(i + 1, j) && get(side, i + 1, j) ||
+            	  occupied(i, j + 1) && get(side, i, j + 1) ||
+            	  occupied(i, j - 1) && get(side, i, j - 1) ||
+            	  occupied(i + 1, j + 1) && get(side, i + 1, j + 1) ||
+            	  occupied(i + 1, j - 1) && get(side, i + 1, j - 1)) {
+            		frontier_score++;
+            	}
+            }
+            else if (! occupied(i, j) && i == 7 && j > 0 && j < 7) { // right column without corners
+            	if (occupied(i - 1, j) && get(side, i - 1, j) ||
+            	  occupied(i, j + 1) && get(side, i, j + 1) ||
+            	  occupied(i, j - 1) && get(side, i, j - 1) ||
+            	  occupied(i - 1, j + 1) && get(side, i - 1, j + 1) ||
+            	  occupied(i - 1, j - 1) && get(side, i - 1, j - 1)) {
+            		frontier_score++;
+            	}
+            }
+            else if (! occupied(i, j) && j == 0 && i > 0 && i < 7) { // top row without corners
+            	if (occupied(i + 1, j) && get(side, i + 1, j) ||
+            	  occupied(i - 1, j) && get(side, i - 1, j) ||
+            	  occupied(i, j + 1) && get(side, i, j + 1) ||
+            	  occupied(i + 1, j + 1) && get(side, i + 1, j + 1) ||
+            	  occupied(i - 1, j + 1) && get(side, i - 1, j + 1)) {
+            		frontier_score++;
+            	}
+            }
+            else if (! occupied(i, j) && j == 7 && i > 0 && i < 7) { // bottom row without corners
+            	if (occupied(i + 1, j) && get(side, i + 1, j) ||
+            	  occupied(i - 1, j) && get(side, i - 1, j) ||
+            	  occupied(i, j - 1) && get(side, i, j - 1) ||
+            	  occupied(i + 1, j - 1) && get(side, i + 1, j - 1) ||
+            	  occupied(i - 1, j - 1) && get(side, i - 1, j - 1)) {
+            		frontier_score++;
+            	}
+            }
+            else if (! occupied(i, j) && i == 0 && j == 0) { // top left corner
+            	if (occupied(i + 1, j) && get(side, i + 1, j) ||
+            	  occupied(i, j + 1) && get(side, i, j + 1) ||
+            	  occupied(i + 1, j + 1) && get(side, i + 1, j + 1)) {
+            		frontier_score++;
+            	}
+            }
+            else if (! occupied(i, j) && i == 7 && j == 0) { // top right corner
+            	if (occupied(i - 1, j) && get(side, i - 1, j) ||
+            	  occupied(i, j + 1) && get(side, i, j + 1) ||
+            	  occupied(i - 1, j + 1) && get(side, i - 1, j + 1)) {
+            		frontier_score++;
+            	}
+            }
+            else if (! occupied(i, j) && i == 0 && j == 7) { // bottom left corner
+            	if (occupied(i + 1, j) && get(side, i + 1, j) ||
+            	  occupied(i, j - 1) && get(side, i, j - 1) ||
+            	  occupied(i + 1, j - 1) && get(side, i + 1, j - 1)) {
+            		frontier_score++;
+            	}
+            }
+            else if (! occupied(i, j) && i == 7 && j == 7) { // bottom right corner
+            	if (occupied(i - 1, j) && get(side, i - 1, j) ||
+            	  occupied(i, j - 1) && get(side, i, j - 1) ||
+            	  occupied(i - 1, j - 1) && get(side, i - 1, j - 1)) {
+            		frontier_score++;
+            	}
+            }
+        }
+    }
+    return frontier_score;
 }
-*/

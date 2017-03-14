@@ -20,7 +20,7 @@ public:
     Player(Side side);
     ~Player();
 
-	Move *openingBook(Move *opponentsMove);
+	Move *openingBook(string move_history);
     Move *doMove(Move *opponentsMove, int msLeft);
 	void timedSearch(int ms);
 
