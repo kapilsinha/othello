@@ -150,17 +150,20 @@ void Node::CalculateScore()
 {
 	int whiteCount = taken.count() - black.count();
 	int blackCount = black.count();
+	int count_difference;
 	double heuristic;
-	
+	// Note: the following weights for the heuristics are arbitrary. They will be adjusted later
+	// Also maybe we should add a method that calculates move number (so that the heuristic can be adjusted at the end)
 	if(playerSide == BLACK)
 	{
-		heuristic = blackCount - whiteCount;
+		count_difference = blackCount - whiteCount;
 	}
 	else
 	{
-		heuristic = whiteCount - blackCount;
+		count_difference = whiteCount - blackCount;
 	}
-	
+	heuristic = getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide))
+				+ playerNumMoves();
 	UpdateScore(heuristic);
 }
 
@@ -479,9 +482,10 @@ string Node::printMoves()
 }
 
 /**
- * Returns number of moves // Added this
+ * Returns number of moves for player
  */
-int Node::numMoves() { // change to numGoodMoves based on some heuristic?
+int Node::playerNumMoves() { // change to numGoodMoves based on some heuristic? Probably not
+// change to playerNumMoves and add opponentNumMoves
     // perhaps not required later due to the added function getMoves()
     if(!searched) Search();
     int num_moves = 0;
@@ -489,6 +493,27 @@ int Node::numMoves() { // change to numGoodMoves based on some heuristic?
    		num_moves++;
    	}
     return num_moves;
+}
+
+/**
+ * Returns number of moves for opponent
+ */
+int Node::opponentNumMoves() { // change to numGoodMoves based on some heuristic? Probably not
+// change to playerNumMoves and add opponentNumMoves
+    // perhaps not required later due to the added function getMoves()
+    if(!searched) Search();
+    int num_moves = 0;
+    int max_num_moves = 0;
+   	for(Node * child: children) {
+   		if(! child->searched) child->Search();
+   		for (Node * grandchild: child->children) {
+            num_moves++;
+    	}
+    	if (num_moves > max_num_moves) {
+    		max_num_moves = num_moves;
+    	}
+   	}
+    return max_num_moves;
 }
 
 /**
@@ -523,37 +548,37 @@ void Node::adjustBoardWeights()
     if (occupied(0, 0) && get(side, 0, 0)) {
         board_weight[0][1] = 2; board_weight[1][0] = 2;
         if (! occupied(0, 1)) { // gaps are bad
-            board_weight[0][2] = -3;
+            board_weight[0][2] = -4;
         }
         if (! occupied(1, 0)) { // gaps are bad
-            board_weight[2][0] = -3;
+            board_weight[2][0] = -4;
         }
     }
     if (occupied(7, 0) && get(side, 7, 0)) {
         board_weight[7][1] = 2; board_weight[6][0] = 2;
         if (! occupied(7, 1)) { // gaps are bad
-            board_weight[7][2] = -3;
+            board_weight[7][2] = -4;
         }
         if (! occupied(6, 0)) { // gaps are bad
-            board_weight[5][0] = -3;
+            board_weight[5][0] = -4;
         }
     }
     if (occupied(0, 7) && get(side, 0, 7)) {
         board_weight[1][7] = 2; board_weight[0][6] = 2;
         if (! occupied(1, 7)) { // gaps are bad
-            board_weight[2][7] = -3;
+            board_weight[2][7] = -4;
         }
         if (! occupied(0, 6)) { // gaps are bad
-            board_weight[0][5] = -3;
+            board_weight[0][5] = -4;
         }
     }
     if (occupied(7, 7) && get(side, 7, 7)) {
         board_weight[7][6] = 2; board_weight[6][7] = 2;
         if (! occupied(7, 6)) { // gaps are bad
-            board_weight[7][5] = -3;
+            board_weight[7][5] = -4;
         }
         if (! occupied(6, 7)) { // gaps are bad
-            board_weight[5][7] = -3;
+            board_weight[5][7] = -4;
         }
     }
 }
@@ -561,7 +586,7 @@ void Node::adjustBoardWeights()
 /**
  * Returns sum of that side's weights based on what is occupied
  */
-int Node::getWeightScore()
+int Node::getWeightScore(Side side)
 {
     int weight_total = 0;
     for (int i = 0; i < 8; i++) {
@@ -573,3 +598,13 @@ int Node::getWeightScore()
     }
     return weight_total;
 }
+/**
+int Node::getFrontierSquaresScore(Side side)
+{
+	int weight_total = 0;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (! occupied(i, j)) {
+            	if ( && get(side, i, j))
+}
+*/
