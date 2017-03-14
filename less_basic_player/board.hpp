@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <tuple>
+#include <iostream>
 using namespace std;
 
 class Board {
@@ -18,7 +19,7 @@ private:
     bool get(Side side, int x, int y);
     void set(Side side, int x, int y);
     bool onBoard(int x, int y);
-    vector<SideMove> move_list; // SideMove struct defined in common.hpp
+    vector<SideMove> move_history; // SideMove struct defined in common.hpp
 
 public:
     Board();
@@ -44,6 +45,8 @@ public:
     bool checkMove(Move *m, Side side);
     vector< tuple<int, int> > getMoves(Side side);
     // void undoMove();
+    vector<SideMove> getMoveHistory();
+    char * encodeMoveHistory(vector<SideMove> moves);
     void doMove(Move *m, Side side);
     int count(Side side);
     int countBlack();

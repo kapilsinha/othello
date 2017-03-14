@@ -114,6 +114,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft)
     }
 
     game.doMove(opponentsMove, (Side) (1 - side));
+    // cout << game.encodeMoveHistory(game.getMoveHistory()) << endl; // doesn't work for some reason
     
     // WE HAVE TO CHECK IF THERE IS A KILL MOVE (TAKE ALL OF THE OPPONENT'S PIECES)
     // ALSO WE HAVE TO MAKE SURE THAT WE CANNOT GET KILLED OFF

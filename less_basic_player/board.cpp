@@ -59,7 +59,7 @@ bool Board::isDone() {
  */
 void Board::adjustBoardWeights(Side side)
 {
-    if (move_list.size() == 0) {
+    if (move_history.size() == 0) {
         return;
     }
     if (occupied(0, 0) && get(side, 0, 0)) {
@@ -202,8 +202,8 @@ vector< tuple<int, int> > Board::getMoves(Side side) {
  */
 /*
 void Board::undoMove() {
-    SideMove s = move_list.back(); // remove move from list
-	move_list.pop_back();
+    SideMove s = move_history.back(); // remove move from list
+	move_history.pop_back();
     int x = s.move.getX();
     int y = s.move.getY();
     taken.set(x + 8*y, 0); // set space to not taken
@@ -211,6 +211,31 @@ void Board::undoMove() {
     // the above should not be necessary but it is there as a precaution
 }
 */
+
+vector<SideMove> Board::getMoveHistory()
+{
+    return move_history;
+}
+
+/**
+ * Converts move_history vector into a string equivalent
+ * (to be used in the openings books)
+ */
+char * Board::encodeMoveHistory(vector<SideMove> moves) // DOESN'T WORK!
+{
+    char * move_list = new char[moves.size() * 2];
+    for (int i = 0; i < (int) moves.size(); i++) {
+        if (moves[i].side == BLACK) {
+            move_list[i] = 'A' - 1 + moves[i].move.getX();
+            move_list[i + 1] = moves[i].move.getY() + 1;
+        }
+        else { // (moves[i].side == WHITE)
+            move_list[i] = 'a' - 1 + moves[i].move.getX();
+            move_list[i + 1] = moves[i].move.getY() + 1;
+        }
+    }
+    return move_list;
+}
 
 /*
  * Modifies the board to reflect the specified move.
@@ -223,7 +248,7 @@ void Board::doMove(Move *m, Side side) {
     if (!checkMove(m, side)) return;
     
     SideMove inputMove = {*m, side};
-    move_list.push_back(inputMove); // added this
+    move_history.push_back(inputMove); // added this
     int X = m->getX();
     int Y = m->getY();
     Side other = (side == BLACK) ? WHITE : BLACK;
