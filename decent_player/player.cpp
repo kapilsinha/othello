@@ -148,7 +148,14 @@ Move *Player::doMove(Move *oppMove, int msLeft)
 	Move * willPlay = new Move(bestMoves[index]->move.x, bestMoves[index]->move.y);
 	current = current->playMove(*willPlay);
 	
-	depthSearch(2);
+	if(current->squaresLeft() <= 10)
+	{
+		depthSearch(10);
+	}
+	else
+	{
+		depthSearch(2);
+	}	
 	
 	Move tmp = {-1, -1};
 	if(*willPlay == tmp) return nullptr;

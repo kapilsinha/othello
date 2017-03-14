@@ -574,6 +574,11 @@ int Node::getGameMoveNumber()
 	}
 }
 
+int Node::squaresLeft()
+{
+	return 64 - taken.count();
+}
+
 /**
  * Adjusts board weights if a corner is taken - based on Board class
  */

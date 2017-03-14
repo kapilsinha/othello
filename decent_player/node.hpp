@@ -55,6 +55,7 @@ public:
 	string printMoveHistory(); // in formatted form
 
     int getGameMoveNumber(); // returns game move number
+	int squaresLeft();
     void adjustBoardWeights();
 
     int playerNumMoves();
