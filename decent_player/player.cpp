@@ -10,9 +10,8 @@ Player::Player(Side side) {
     testingMinimax = false;
 
     this->side = side;
-	root = new Node();
+	root = new Node(side);
 	current = root;
-	leaves = {&root};
 }
 
 /*
@@ -22,16 +21,22 @@ Player::~Player() {
 	delete root;
 }
 
-/*
- * Remove deleted leaves.
- */
-void Player::pruneLeaves() {
-	vector<Node **> newLeaves;
-	for(Node ** leaf: leaves)
+void Player::timedSearch(int ms)
+{
+	clock_t start = clock();
+	
+	do
 	{
-		if(*leaf != nullptr) newLeaves.push_back(leaf);
+		vector<Node *> leaves = current->getLeaves();
+		
+		for(Node * leaf: leaves)
+		{
+			leaf->Search();
+			if((clock() - start) / (double) CLOCKS_PER_SEC > ms / (double) 1000) break;
+		}
 	}
-	leaves = newLeaves;
+	while((clock() - start) / (double) CLOCKS_PER_SEC < ms / (double) 1000);
+
 }
 
 /*
@@ -78,7 +83,7 @@ Move *openingBook(string move_history)
 Move *Player::doMove(Move *oppMove, int msLeft)
 {
 	// we do not have the first move
-    if(current != root)
+    if(current != root || oppMove != nullptr)
 	{
 		if(oppMove == nullptr)
 		{
@@ -88,13 +93,24 @@ Move *Player::doMove(Move *oppMove, int msLeft)
 		{
 			current = current->playMove(*oppMove);
 		}
-		pruneLeaves();
 	}
 	
-	// stupid AI: plays the first move found
-	vector<Node *> children = current->Search();
+	timedSearch(50);
 	
-	Move * willPlay = new Move(children[0]->move.x, children[0]->move.y);
+	// reasonable AI: plays best move according to basic heuristic
+	vector<Node *> children = current->Search();
+	double bestScore = -100.0;
+	Node * bestMove = nullptr;
+	for(Node * child: children)
+	{
+		if(child->score > bestScore)
+		{
+			bestScore = child->score;
+			bestMove = child;
+		}
+	}
+	
+	Move * willPlay = new Move(bestMove->move.x, bestMove->move.y);
 	current = current->playMove(*willPlay);
 	
 	Move tmp = {-1, -1};

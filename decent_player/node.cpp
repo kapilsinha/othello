@@ -3,7 +3,7 @@
 /*
  * Default Node constructor
  */
-Node::Node() {
+Node::Node(Side playerSide) {
 	taken.set(3 + 8 * 3);
     taken.set(3 + 8 * 4);
     taken.set(4 + 8 * 3);
@@ -11,11 +11,13 @@ Node::Node() {
     black.set(4 + 8 * 3);
     black.set(3 + 8 * 4);
 	
-	played = false;
+	played = true;
 	isEnd = false;
 	searched = false;
 	move = {8, 8};
+	score =  0.0;
 	side = WHITE;
+	this->playerSide = playerSide;
 	
 	parent = nullptr;
 }
@@ -26,6 +28,7 @@ Node::Node() {
 Node::Node(Node * parent, vector<Move> toFlip, Move move, Side side, bool played) {
 	this->black = parent->black;
 	this->taken = parent->taken;
+	this->playerSide = parent->playerSide;
 	for(Move pair: toFlip)
 	{
 		black.flip(pair.toInt());
@@ -46,6 +49,8 @@ Node::Node(Node * parent, vector<Move> toFlip, Move move, Side side, bool played
 	
 	isEnd = false;
 	searched = false;
+	
+	CalculateScore();
 }
 
 /*
@@ -119,6 +124,69 @@ Node * Node::playMove(Move toPlay)
 }
 
 /*
+ * This implements minimax (works recursively).
+ */
+void Node::UpdateScore(double d)
+{
+	score = d;
+	
+	if(!parent->played)
+	{
+		if(side == playerSide && d > parent->score)
+		{
+			parent->UpdateScore(d);
+		}
+		else if(side != playerSide && d < parent->score)
+		{
+			parent->UpdateScore(d);
+		}
+	}
+}
+
+/*
+ * This is the heuristic function.
+ */
+void Node::CalculateScore()
+{
+	int whiteCount = taken.count() - black.count();
+	int blackCount = black.count();
+	double heuristic;
+	
+	if(playerSide == BLACK)
+	{
+		heuristic = blackCount - whiteCount;
+	}
+	else
+	{
+		heuristic = whiteCount - blackCount;
+	}
+	
+	UpdateScore(heuristic);
+}
+
+vector<Node *> Node::getLeaves()
+{
+	vector<Node *> output;
+	
+	if(!searched)
+	{
+		output.push_back(this);
+	}
+	else
+	{
+		for(Node * child: children)
+		{
+			for(Node * leaf: child->getLeaves())
+			{
+				output.push_back(leaf);
+			}
+		}
+	}
+	
+	return output;
+}
+
+/*
  * The magic is all here... 
  */
 vector<Node *> Node::Search()
@@ -146,11 +214,11 @@ vector<Node *> Node::Search()
 		
 		for(vector<Move> result: SearchLine(line))
 		{
-			Move move = result[0];
+			Move move2 = result[0];
 		
 			for(int k = 1; k < result.size(); k++)
 			{
-				moves[move].push_back(result[k]);
+				moves[move2].push_back(result[k]);
 			}
 		}		
 	}
@@ -173,11 +241,11 @@ vector<Node *> Node::Search()
 		
 		for(vector<Move> result: SearchLine(line))
 		{
-			Move move = result[0];
+			Move move2 = result[0];
 		
 			for(int k = 1; k < result.size(); k++)
 			{
-				moves[move].push_back(result[k]);
+				moves[move2].push_back(result[k]);
 			}
 		}
 	}
@@ -193,11 +261,11 @@ vector<Node *> Node::Search()
 		
 		for(vector<Move> result: SearchLine(line))
 		{
-			Move move = result[0];
+			Move move2 = result[0];
 		
 			for(int k = 1; k < result.size(); k++)
 			{
-				moves[move].push_back(result[k]);
+				moves[move2].push_back(result[k]);
 			}
 		}
 	}
@@ -213,11 +281,11 @@ vector<Node *> Node::Search()
 		
 		for(vector<Move> result: SearchLine(line))
 		{
-			Move move = result[0];
+			Move move2 = result[0];
 		
 			for(int k = 1; k < result.size(); k++)
 			{
-				moves[move].push_back(result[k]);
+				moves[move2].push_back(result[k]);
 			}
 		}
 	}

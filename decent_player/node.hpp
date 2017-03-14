@@ -19,6 +19,7 @@ public:
 	bool played; // has this move been played yet?
 	bool isEnd; // has the game ended?
 	bool searched; // has Search() been called yet?
+	Side playerSide; // what side is the player?
 	Node * parent;
 	vector<Node *> children;
 	double score;
@@ -34,7 +35,7 @@ public:
         {4, -3, 2, 2, 2, 2, -3, 4}
     };
 
-	Node();
+	Node(Side playerSide = BLACK);
 	Node(Node * parent, vector<Move> toFlip, Move move, Side side, bool played = false);
 	~Node();
 
@@ -44,6 +45,7 @@ public:
     int countBlack();
     int countWhite();
 	
+	vector<Node *> getLeaves();
 	vector<Node *> Search();
 	vector< vector<Move> > SearchLine(vector<Move> MoveList);
 	Node * playMove(Move toPlay);
@@ -57,10 +59,8 @@ public:
     int numMoves();
     int getWeightScore();
 	
-	/* TODO:
 	void UpdateScore(double d);
 	void CalculateScore(); // implement heuristic function here
-	*/
 	
 };
 
