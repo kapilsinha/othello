@@ -13,6 +13,8 @@ Player::Player(Side side) {
     this->side = side;
 	root = new Node(side);
 	current = root;
+	
+	depthSearch(3);
 }
 
 /*
@@ -37,6 +39,20 @@ void Player::timedSearch(int ms)
 		}
 	}
 	while((clock() - start) / (double) CLOCKS_PER_SEC < ms / (double) 1000);
+
+}
+
+void Player::depthSearch(int depth)
+{
+	for(int i = 0; i < depth; i++)
+	{
+		vector<Node *> leaves = current->getLeaves();
+		
+		for(Node * leaf: leaves)
+		{
+			leaf->Search();
+		}
+	}
 
 }
 
@@ -106,12 +122,11 @@ Move *Player::doMove(Move *oppMove, int msLeft)
 		}
 	}
     */
-	timedSearch(50);
 	
 	// reasonable AI: plays best move according to basic heuristics
 	vector<Node *> children = current->Search();
-	double bestScore = -100.0;
-	Node * bestMove = nullptr;
+	double bestScore = children[0]->score;
+	Node * bestMove = children[0];
 	for(Node * child: children)
 	{
 		if(child->score > bestScore)
@@ -123,6 +138,8 @@ Move *Player::doMove(Move *oppMove, int msLeft)
 	
 	Move * willPlay = new Move(bestMove->move.x, bestMove->move.y);
 	current = current->playMove(*willPlay);
+	
+	depthSearch(2);
 	
 	Move tmp = {-1, -1};
 	if(*willPlay == tmp) return nullptr;

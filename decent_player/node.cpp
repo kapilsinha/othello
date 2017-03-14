@@ -163,9 +163,9 @@ void Node::CalculateScore(int game_move)
 		count_difference = whiteCount - blackCount;
 	}
 	if (game_move < 52) {
-		heuristic = 1 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
-	              + 1 * (getFrontierSquaresScore(playerSide) - getFrontierSquaresScore((Side) (1 - playerSide)))
-			      + 0.25 * (playerNumMoves() - opponentNumMoves());
+		heuristic = 0.25 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
+			      + 1 * (playerNumMoves() - opponentNumMoves());
+				  // 0 * (getFrontierSquaresScore((Side) (1 - playerSide)) - getFrontierSquaresScore(playerSide)) expensive calculation
 	}
 	if (game_move >= 50) { // 10 total moves left - 5 each
 		heuristic = count_difference; //+ 0.5 * (playerNumMoves() - opponentNumMoves());
@@ -493,20 +493,51 @@ string Node::printMoves()
 int Node::playerNumMoves() { // change to numGoodMoves based on some heuristic? Probably not
     // ghetto num_moves (looks at number of moves you could have taken for this step, but since
     // we are searching a tree, the cumulative total will be accounted for so this should be ok)
-    return parent->children.size();
+    
+	// num moves should be calculated based on which side played this move
+	if(side == playerSide)
+	{
+		return parent->children.size();
+	}
+	else
+	{
+		if(parent->parent == nullptr)
+		{
+			return 0;
+		}
+		else
+		{
+			return parent->parent->children.size();
+		}
+	}
+	
+	return 0;
 }
 
 /**
  * Returns number of moves for opponent
  */
 int Node::opponentNumMoves() { // change to numGoodMoves based on some heuristic? Probably not
-	/**
-	if (parent->parent == nullptr) {
-		return 0;
+	
+	// num moves should be calculated based on which side played this move
+	if(side == playerSide)
+	{
+		if(parent->parent == nullptr)
+		{
+			return 0;
+		}
+		else
+		{
+			return parent->parent->children.size();
+		}
 	}
-	return parent->parent->children.size(); // interestingly, this gave an invalid move
-	*/
-	return children.size();
+	else
+	{
+		return parent->children.size();
+	}
+	
+	return 0;
+	
 }
 
 /**
@@ -551,7 +582,7 @@ void Node::adjustBoardWeights()
     if (printMoveHistory().length() == 0) {
         return;
     }
-    if (occupied(0, 0) && get(side, 0, 0)) {
+    if (occupied(0, 0) && get(playerSide, 0, 0)) {
         board_weight[0][1] = 2; board_weight[1][0] = 2;
         if (! occupied(0, 1)) { // gaps are bad
             board_weight[0][2] = -5;
@@ -560,7 +591,7 @@ void Node::adjustBoardWeights()
             board_weight[2][0] = -5;
         }
     }
-    if (occupied(7, 0) && get(side, 7, 0)) {
+    if (occupied(7, 0) && get(playerSide, 7, 0)) {
         board_weight[7][1] = 2; board_weight[6][0] = 2;
         if (! occupied(7, 1)) { // gaps are bad
             board_weight[7][2] = -5;
@@ -569,7 +600,7 @@ void Node::adjustBoardWeights()
             board_weight[5][0] = -5;
         }
     }
-    if (occupied(0, 7) && get(side, 0, 7)) {
+    if (occupied(0, 7) && get(playerSide, 0, 7)) {
         board_weight[1][7] = 2; board_weight[0][6] = 2;
         if (! occupied(1, 7)) { // gaps are bad
             board_weight[2][7] = -5;
@@ -578,7 +609,7 @@ void Node::adjustBoardWeights()
             board_weight[0][5] = -5;
         }
     }
-    if (occupied(7, 7) && get(side, 7, 7)) {
+    if (occupied(7, 7) && get(playerSide, 7, 7)) {
         board_weight[7][6] = 2; board_weight[6][7] = 2;
         if (! occupied(7, 6)) { // gaps are bad
             board_weight[7][5] = -5;

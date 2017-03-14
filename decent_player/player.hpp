@@ -23,6 +23,7 @@ public:
 	Move *openingBook(string move_history);
     Move *doMove(Move *opponentsMove, int msLeft);
 	void timedSearch(int ms);
+	void depthSearch(int depth);
 
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;
