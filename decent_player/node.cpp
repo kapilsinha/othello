@@ -59,6 +59,35 @@ Node::~Node() {
 	}
 }
 
+bool Node::occupied(int x, int y) {
+    return taken[x + 8*y];
+}
+
+bool Node::get(Side side, int x, int y) {
+    return occupied(x, y) && (black[x + 8*y] == (side == BLACK));
+}
+
+/*
+ * Current count of given side's stones.
+ */
+int Node::count(Side side) {
+    return (side == BLACK) ? countBlack() : countWhite();
+}
+
+/*
+ * Current count of black stones.
+ */
+int Node::countBlack() {
+    return black.count();
+}
+
+/*
+ * Current count of white stones.
+ */
+int Node::countWhite() {
+    return taken.count() - black.count();
+}
+
 Node * Node::playMove(Move toPlay)
 {
 	if(!searched) Search();
@@ -382,6 +411,19 @@ string Node::printMoves()
 }
 
 /**
+ * Returns number of moves // Added this
+ */
+int Node::numMoves() { // change to numGoodMoves based on some heuristic?
+    // perhaps not required later due to the added function getMoves()
+    if(!searched) Search();
+    int num_moves = 0;
+   	for(Node * child: children) {
+   		num_moves++;
+   	}
+    return num_moves;
+}
+
+/**
  * Recurses through the parent nodes and returns a string containing the move history
  * formatted as a string like F5b6G4d3....
  */
@@ -400,4 +442,66 @@ string Node::printMoveHistory()
 		current_node = current_node->parent;
 	}
 	return move_history;
+}
+
+/**
+ * Adjusts board weights if a corner is taken - based on Board class
+ */
+void Node::adjustBoardWeights()
+{
+    if (printMoveHistory().length() == 0) {
+        return;
+    }
+    if (occupied(0, 0) && get(side, 0, 0)) {
+        board_weight[0][1] = 2; board_weight[1][0] = 2;
+        if (! occupied(0, 1)) { // gaps are bad
+            board_weight[0][2] = -3;
+        }
+        if (! occupied(1, 0)) { // gaps are bad
+            board_weight[2][0] = -3;
+        }
+    }
+    if (occupied(7, 0) && get(side, 7, 0)) {
+        board_weight[7][1] = 2; board_weight[6][0] = 2;
+        if (! occupied(7, 1)) { // gaps are bad
+            board_weight[7][2] = -3;
+        }
+        if (! occupied(6, 0)) { // gaps are bad
+            board_weight[5][0] = -3;
+        }
+    }
+    if (occupied(0, 7) && get(side, 0, 7)) {
+        board_weight[1][7] = 2; board_weight[0][6] = 2;
+        if (! occupied(1, 7)) { // gaps are bad
+            board_weight[2][7] = -3;
+        }
+        if (! occupied(0, 6)) { // gaps are bad
+            board_weight[0][5] = -3;
+        }
+    }
+    if (occupied(7, 7) && get(side, 7, 7)) {
+        board_weight[7][6] = 2; board_weight[6][7] = 2;
+        if (! occupied(7, 6)) { // gaps are bad
+            board_weight[7][5] = -3;
+        }
+        if (! occupied(6, 7)) { // gaps are bad
+            board_weight[5][7] = -3;
+        }
+    }
+}
+
+/**
+ * Returns sum of that side's weights based on what is occupied
+ */
+int Node::getWeightScore()
+{
+    int weight_total = 0;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            if (occupied(i, j) && get(side, i, j)) {
+                weight_total += board_weight[i][j];
+            }
+        }
+    }
+    return weight_total;
 }

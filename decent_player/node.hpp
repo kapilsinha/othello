@@ -22,18 +22,40 @@ public:
 	Node * parent;
 	vector<Node *> children;
 	double score;
+	int board_weight[8][8] = // gets adjusted as the game progresses
+    {
+        {4, -3, 2, 2, 2, 2, -3, 4},
+        {-3, -4, -1, -1, -1, -1, -4, -3},
+        {2, -1, 1, 0, 0, 1, -1, 2},
+        {2, -1, 0, 1, 1, 0, -1, 2},
+        {2, -1, 0, 1, 1, 0, -1, 2},
+        {2, -1, 1, 0, 0, 1, -1, 2},
+        {-3, -4, -1, -1, -1, -1, -4, -3},
+        {4, -3, 2, 2, 2, 2, -3, 4}
+    };
 
 	Node();
 	Node(Node * parent, vector<Move> toFlip, Move move, Side side, bool played = false);
 	~Node();
+
+    bool occupied(int x, int y);
+    bool get(Side side, int x, int y);
+    int count(Side side);
+    int countBlack();
+    int countWhite();
 	
 	vector<Node *> Search();
 	vector< vector<Move> > SearchLine(vector<Move> MoveList);
 	Node * playMove(Move toPlay);
-	string printMoveHistory(); // in formatted form
 	
 	string printBoard();
 	string printMoves();
+	string printMoveHistory(); // in formatted form
+
+    void adjustBoardWeights();
+
+    int numMoves();
+    int getWeightScore();
 	
 	/* TODO:
 	void UpdateScore(double d);
