@@ -14,6 +14,8 @@ Player::Player(Side side) {
 	root = new Node(side);
 	current = root;
 	
+	srand(time(NULL));
+	
 	depthSearch(3);
 }
 
@@ -126,17 +128,24 @@ Move *Player::doMove(Move *oppMove, int msLeft)
 	// reasonable AI: plays best move according to basic heuristics
 	vector<Node *> children = current->Search();
 	double bestScore = children[0]->score;
-	Node * bestMove = children[0];
+	vector<Node *> bestMoves = {children[0]};
 	for(Node * child: children)
 	{
-		if(child->score > bestScore)
+		if(child->score > bestScore + 2)
 		{
 			bestScore = child->score;
-			bestMove = child;
+			bestMoves.clear();
+			bestMoves.push_back(child);
+		}
+		else if(child->score > bestScore - 2)
+		{
+			bestMoves.push_back(child);
 		}
 	}
 	
-	Move * willPlay = new Move(bestMove->move.x, bestMove->move.y);
+	int index = rand() % (bestMoves.size());
+	
+	Move * willPlay = new Move(bestMoves[index]->move.x, bestMoves[index]->move.y);
 	current = current->playMove(*willPlay);
 	
 	depthSearch(2);

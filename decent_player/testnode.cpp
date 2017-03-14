@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
+#include <stdlib.h>
+#include <time.h>
 #include "node.hpp"
+#include "player.hpp"
 
 using namespace std;
 
@@ -9,6 +12,11 @@ int main(int argc, char *argv[])
 	Node * test = new Node();
 	int x, y;
 	
+	srand(time(NULL));
+	
+	cout << rand() % 10 << endl;
+	
+	/*
 	while(true)
 	{
 		cout << '\n' << test->printBoard() << endl;
@@ -18,6 +26,7 @@ int main(int argc, char *argv[])
 		
 		test = test->playMove({x, y});
 	}
+	*/
 
     return 0;
 }
