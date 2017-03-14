@@ -16,7 +16,7 @@ Player::Player(Side side) {
 	
 	srand(time(NULL));
 	
-	depthSearch(3);
+	depthSearch(4);
 }
 
 /*

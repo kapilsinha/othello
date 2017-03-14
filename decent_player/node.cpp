@@ -163,16 +163,16 @@ void Node::CalculateScore(int game_move)
 		count_difference = whiteCount - blackCount;
 	}
 	if (game_move < 30) {
-		heuristic = 1 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
+		heuristic = 3 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
 			      + 1 * (playerNumMoves() - opponentNumMoves())
-				  + 1 * (getFrontierSquaresScore((Side) (1 - playerSide)) - getFrontierSquaresScore(playerSide)); //expensive calculation	
+				  + 2 * (getFrontierSquaresScore((Side) (1 - playerSide)) - getFrontierSquaresScore(playerSide)); //expensive calculation	
 	}
 	else if (game_move < 50) {
-		heuristic = 1 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
+		heuristic = 2 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
 			      + 1 * (playerNumMoves() - opponentNumMoves());
 				  //+ 2 * (getFrontierSquaresScore((Side) (1 - playerSide)) - getFrontierSquaresScore(playerSide)); //expensive calculation
 	}
-	if (game_move >= 50) { // 10 total moves left - 5 each
+	else if (game_move >= 50) { // 10 total moves left - 5 each
 		heuristic = count_difference; //+ 0.5 * (playerNumMoves() - opponentNumMoves());
 	}
 	UpdateScore(heuristic);
@@ -592,6 +592,22 @@ void Node::adjustBoardWeights()
     if (printMoveHistory().length() == 0) {
         return;
     }
+    for (int i = 1; i < 5; i++) {
+    	if (get(playerSide, i, 0) && get(playerSide, i + 2, 0)) {
+    		board_weight[i + 1][0] = -6;
+    	}
+    	if (get(playerSide, i, 7) && get(playerSide, i + 2, 7)) {
+    		board_weight[i + 1][7] = -6;
+    	}
+    }
+    for (int j = 1; j < 5; j++) {
+    	if (get(playerSide, 0, j) && get(playerSide, 0, j + 2)) {
+    		board_weight[0][j + 1] = -6;
+    	}
+    	if (get(playerSide, 7, j) && get(playerSide, 7, j + 2)) {
+    		board_weight[7][j + 1] = -6;
+    	}
+    }
     if (occupied(0, 0) && get(playerSide, 0, 0)) {
         board_weight[0][1] = 6; board_weight[1][0] = 6; board_weight[1][1] = 4;
         if (! occupied(0, 1)) { // gaps are bad
@@ -667,6 +683,7 @@ int Node::getFrontierSquaresScore(Side side)
 	            		frontier_score++;
 	            	}
 	            }
+	            /**
 	            else if (i == 0 && j > 0 && j < 7) { // left column without corners
 	            	if (! occupied(i + 1, j) ||
 	            	  ! occupied(i, j + 1) ||
@@ -731,6 +748,7 @@ int Node::getFrontierSquaresScore(Side side)
 	            		frontier_score++;
 	            	}
 	            }
+	            */
 	        }
         }
     }
