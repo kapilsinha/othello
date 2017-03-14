@@ -162,10 +162,15 @@ void Node::CalculateScore(int game_move)
 	{
 		count_difference = whiteCount - blackCount;
 	}
-	if (game_move < 52) {
-		heuristic = 0.5 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
+	if (game_move < 30) {
+		heuristic = 1 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
+			      + 1 * (playerNumMoves() - opponentNumMoves())
+				  + 1 * (getFrontierSquaresScore((Side) (1 - playerSide)) - getFrontierSquaresScore(playerSide)); //expensive calculation	
+	}
+	else if (game_move < 50) {
+		heuristic = 1 * (getWeightScore(playerSide) - getWeightScore((Side) (1 - playerSide)))
 			      + 1 * (playerNumMoves() - opponentNumMoves());
-				  + 1 * (getFrontierSquaresScore((Side) (1 - playerSide)) - getFrontierSquaresScore(playerSide)); //expensive calculation
+				  //+ 2 * (getFrontierSquaresScore((Side) (1 - playerSide)) - getFrontierSquaresScore(playerSide)); //expensive calculation
 	}
 	if (game_move >= 50) { // 10 total moves left - 5 each
 		heuristic = count_difference; //+ 0.5 * (playerNumMoves() - opponentNumMoves());
