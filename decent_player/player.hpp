@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <vector>
+#include <string>
+
 #include "common.hpp"
 #include "node.hpp"
 using namespace std;
@@ -20,6 +22,7 @@ public:
     ~Player();
 	void pruneLeaves();
 
+	Move *openingBook(Move *opponentsMove);
     Move *doMove(Move *opponentsMove, int msLeft);
 
     // Flag to tell if the player is running within the test_minimax context
