@@ -380,3 +380,24 @@ string Node::printMoves()
 	
 	return output;
 }
+
+/**
+ * Recurses through the parent nodes and returns a string containing the move history
+ * formatted as a string like F5b6G4d3....
+ */
+string Node::printMoveHistory()
+{
+	string move_history = "";
+	Node * current_node = this;
+	while (current_node->parent != nullptr) {
+		move_history = std::to_string(current_node->parent->move.y + 1) + move_history;
+		if (current_node->parent->side == BLACK) {
+			move_history = (char) ('A' + current_node->parent->move.x) + move_history;
+		}
+		else {
+			move_history = (char) ('a' + current_node->parent->move.x) + move_history;
+		}
+		current_node = current_node->parent;
+	}
+	return move_history;
+}

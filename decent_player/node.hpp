@@ -30,6 +30,7 @@ public:
 	vector<Node *> Search();
 	vector< vector<Move> > SearchLine(vector<Move> MoveList);
 	Node * playMove(Move toPlay);
+	string printMoveHistory(); // in formatted form
 	
 	string printBoard();
 	string printMoves();
